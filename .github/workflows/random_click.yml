@@ -4,7 +4,7 @@ on:
     branches:
       - main
   schedule: # 如需修改运行次数，请修改此表达式，在线生成表达式：https://cron.qqe2.com/
-    - cron: '36 4,6,7,9,10 * * *' 
+    - cron: '36 4,6,7,9,10 * * *'
   workflow_dispatch:
   watch:
     types: started
@@ -13,18 +13,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4 # 升级到 checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4 # 升级到 setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - name: Cache node_modules
-        uses: actions/cache@v2 # 使用 GitHub 官方的缓存 Action。
+        uses: actions/cache@v4 # 升级到 cache@v4
         env:
           cache-name: cache-node-modules
         with:
           path: node_modules
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('package-lock.json') }} # 使用 package-lock.json 的 Hash 作为缓存的 key。也可以使用 package.json 代替
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - name: npm install
         run: |
           npm install
@@ -48,13 +50,11 @@ jobs:
           TG_USER_ID: ${{ secrets.TG_USER_ID }}
           DD_BOT_TOKEN: ${{ secrets.DD_BOT_TOKEN }}
           DD_BOT_SECRET: ${{ secrets.DD_BOT_SECRET }}
-      
-      - name: Commit #上传新的random_click.log到仓库
+      - name: Commit # 上传新的random_click.log到仓库
         run: |
             git config --global user.email 1487819688@qq.com
             git config --global user.name robot
             git add random_click.log
             git commit -m "Run Log Commit" -a
-  
       - name: Push changes
         uses: ad-m/github-push-action@master
